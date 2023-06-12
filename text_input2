@@ -1,0 +1,81 @@
+import pygame
+import pygame_gui
+
+pygame.init()
+
+screen = pygame.display.set_mode((400, 400))
+clock = pygame.time.Clock()
+
+manager = pygame_gui.UIManager((400, 400))
+
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+GREY = (180, 180, 180)
+
+base_font = pygame.font.SysFont('calibri', 16)
+
+population = 0
+population_increase = 2
+is_paused = False
+user_text = ''
+is_select = False
+
+population_txt = base_font.render('Population: ' + str(population), True, BLACK)
+population_rct = population_txt.get_rect()
+population_rct.topleft = (20, 20)
+
+population_increase_txt = base_font.render('Population Increase: ' + str(population_increase), True, BLACK)
+population_increase_rct = population_increase_txt.get_rect()
+population_increase_rct.topleft = (20, 40)
+
+running = True
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                is_paused = True
+
+    # draw
+    screen.fill(WHITE)
+    screen.blit(population_txt, population_rct)
+    screen.blit(population_increase_txt, population_increase_rct)
+
+    # update
+    population += population_increase
+    population_txt = base_font.render('Population: ' + str(population), True, BLACK)
+    population_increase_txt = base_font.render('Population Increase: ' + str(population_increase), True, BLACK)
+
+    if is_paused:
+        pygame.draw.rect(screen, GREY, (0, 100, 400, 300))
+        input_rct_crd = pygame.Rect(135, 200, 120, 50)
+        pygame.draw.rect(screen, BLACK, input_rct_crd, 1)
+        pygame.display.update()
+        clock.tick(60)
+        run = True
+        while run:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        run = False
+                        is_paused = False
+
+                    if event.key == pygame.K_RETURN:
+                        population_increase = int(user_text)
+                        user_text = ''
+                        is_select = False
+                        run = False
+                        is_paused = False
+
+                    if is_select:
+                        user_text += event.unicode
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if input_rct_crd.collidepoint(event.pos):
+                        is_select = True
+
+    pygame.display.update()
+    clock.tick(60)
+pygame.quit()
